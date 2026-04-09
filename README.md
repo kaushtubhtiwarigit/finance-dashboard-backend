@@ -192,13 +192,3 @@ src/
 
 ---
 
-## Final Checklist
-
-- [x] Code runs
-- [x] README clear
-- [x] Roles explained
-- [x] APIs listed
-- [x] `.env.example` added
-- [x] Docker support
-- [x] Seed script for test users
-- [x] Swagger API docs at `/api-docs`
