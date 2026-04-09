@@ -1,0 +1,275 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Finance Dashboard API",
+    "version": "1.0.0",
+    "description": "Backend API for Finance Dashboard — role-based access control, financial record management, and summary analytics."
+  },
+  "servers": [
+    { "url": "http://localhost:5000/api", "description": "Local server" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "RegisterBody": {
+        "type": "object",
+        "required": ["name", "email", "password"],
+        "properties": {
+          "name": { "type": "string", "example": "John Doe" },
+          "email": { "type": "string", "example": "john@example.com" },
+          "password": { "type": "string", "example": "secret123" }
+        }
+      },
+      "LoginBody": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "example": "john@example.com" },
+          "password": { "type": "string", "example": "secret123" }
+        }
+      },
+      "RecordBody": {
+        "type": "object",
+        "required": ["amount", "type", "category", "date"],
+        "properties": {
+          "amount": { "type": "number", "example": 1500.00 },
+          "type": { "type": "string", "enum": ["income", "expense"], "example": "income" },
+          "category": { "type": "string", "example": "Salary" },
+          "date": { "type": "string", "format": "date", "example": "2026-04-06" },
+          "notes": { "type": "string", "example": "April salary" }
+        }
+      },
+      "RoleBody": {
+        "type": "object",
+        "required": ["role"],
+        "properties": {
+          "role": { "type": "string", "enum": ["VIEWER", "ANALYST", "ADMIN"] }
+        }
+      },
+      "StatusBody": {
+        "type": "object",
+        "required": ["isActive"],
+        "properties": {
+          "isActive": { "type": "boolean", "example": false }
+        }
+      }
+    }
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Register a new user",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User registered successfully" },
+          "400": { "description": "Validation error or email already registered" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login and get JWT token",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoginBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login successful, returns token" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get all users (ADMIN only)",
+        "parameters": [
+          { "in": "query", "name": "page", "schema": { "type": "integer", "default": 1 } },
+          { "in": "query", "name": "limit", "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": {
+          "200": { "description": "List of users with pagination" },
+          "403": { "description": "Access denied" }
+        }
+      }
+    },
+    "/users/{id}/role": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "Update user role (ADMIN only)",
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RoleBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Role updated successfully" },
+          "404": { "description": "User not found" }
+        }
+      }
+    },
+    "/users/{id}/status": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "Update user status (ADMIN only)",
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/StatusBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Status updated successfully" },
+          "404": { "description": "User not found" }
+        }
+      }
+    },
+    "/records": {
+      "post": {
+        "tags": ["Records"],
+        "summary": "Create a financial record (ANALYST / ADMIN)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RecordBody" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Record created" },
+          "400": { "description": "Validation error" }
+        }
+      },
+      "get": {
+        "tags": ["Records"],
+        "summary": "Get all records with optional filters (ANALYST / ADMIN)",
+        "parameters": [
+          { "in": "query", "name": "type", "schema": { "type": "string", "enum": ["income", "expense"] } },
+          { "in": "query", "name": "category", "schema": { "type": "string" } },
+          { "in": "query", "name": "startDate", "schema": { "type": "string", "format": "date" } },
+          { "in": "query", "name": "endDate", "schema": { "type": "string", "format": "date" } },
+          { "in": "query", "name": "page", "schema": { "type": "integer", "default": 1 } },
+          { "in": "query", "name": "limit", "schema": { "type": "integer", "default": 10 } }
+        ],
+        "responses": {
+          "200": { "description": "List of records with pagination" }
+        }
+      }
+    },
+    "/records/{id}": {
+      "get": {
+        "tags": ["Records"],
+        "summary": "Get a single record by ID",
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Record found" },
+          "404": { "description": "Record not found" }
+        }
+      },
+      "put": {
+        "tags": ["Records"],
+        "summary": "Update a record",
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RecordBody" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Record updated" },
+          "404": { "description": "Record not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Records"],
+        "summary": "Soft delete a record",
+        "parameters": [
+          { "in": "path", "name": "id", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Record deleted" },
+          "404": { "description": "Record not found" }
+        }
+      }
+    },
+    "/summary": {
+      "get": {
+        "tags": ["Summary"],
+        "summary": "Get overall income, expense and net balance",
+        "parameters": [
+          { "in": "query", "name": "startDate", "schema": { "type": "string", "format": "date" } },
+          { "in": "query", "name": "endDate", "schema": { "type": "string", "format": "date" } }
+        ],
+        "responses": {
+          "200": { "description": "Overall summary" }
+        }
+      }
+    },
+    "/summary/category": {
+      "get": {
+        "tags": ["Summary"],
+        "summary": "Get summary grouped by category",
+        "parameters": [
+          { "in": "query", "name": "startDate", "schema": { "type": "string", "format": "date" } },
+          { "in": "query", "name": "endDate", "schema": { "type": "string", "format": "date" } }
+        ],
+        "responses": {
+          "200": { "description": "Category summary" }
+        }
+      }
+    },
+    "/summary/monthly": {
+      "get": {
+        "tags": ["Summary"],
+        "summary": "Get monthly summary for a given year",
+        "parameters": [
+          { "in": "query", "name": "year", "schema": { "type": "integer", "example": 2026 } }
+        ],
+        "responses": {
+          "200": { "description": "Monthly summary" }
+        }
+      }
+    }
+  }
+}

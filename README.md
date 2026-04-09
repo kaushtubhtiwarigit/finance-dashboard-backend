@@ -1,13 +1,13 @@
-# 🏷️ Finance Dashboard Backend API
+# Finance Dashboard Backend API
 
-## 📌 Description
+## Description
 
 This is a backend system for a finance dashboard that allows users to manage financial records based on roles and access permissions.
 It includes role-based access control, financial record management, and summary analytics APIs.
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
 - Node.js
 - Express.js
@@ -16,7 +16,7 @@ It includes role-based access control, financial record management, and summary 
 
 ---
 
-## 🚀 Features
+## Features
 
 - User authentication (JWT)
 - Role-based access control (Admin, Analyst, Viewer)
@@ -29,7 +29,7 @@ It includes role-based access control, financial record management, and summary 
 
 ---
 
-## 🧑‍💼 Roles
+## Roles
 
 | Role | Permissions |
 |------|-------------|
@@ -39,7 +39,7 @@ It includes role-based access control, financial record management, and summary 
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
 All protected routes require a JWT token.
 
@@ -50,7 +50,7 @@ Authorization: Bearer <token>
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Auth
 | Method | Endpoint |
@@ -83,7 +83,7 @@ Authorization: Bearer <token>
 
 ---
 
-## 🔎 Filtering Example
+## Filtering Example
 
 ```
 GET /api/records?type=income&category=food
@@ -91,7 +91,24 @@ GET /api/records?type=income&category=food
 
 ---
 
-## 🛠️ Setup Instructions
+## Setup Instructions
+
+### Option A — Docker (recommended)
+
+1. Clone the repo
+2. Make sure [Docker Desktop](https://www.docker.com/products/docker-desktop) is installed
+3. Run:
+   ```bash
+   docker-compose up
+   ```
+4. In a separate terminal, seed the test users:
+   ```bash
+   docker-compose exec app node seed.js
+   ```
+
+Server starts on `http://localhost:5000` with MongoDB included. No extra setup needed.
+
+### Option B — Local
 
 1. Clone the repo
 2. Run: `npm install`
@@ -105,16 +122,45 @@ GET /api/records?type=income&category=food
    BCRYPT_ROUNDS=10
    ```
 5. Run: `npm start` or `npm run dev` for development
+6. Seed test users: `npm run seed`
 
 ---
 
-## 📬 Testing
+## Seed Test Users
 
-APIs were tested using Postman. A Postman collection is included in the repo (`postman_collection.json`) for quick testing.
+> **Note:** This seed script is strictly for development and testing purposes. These credentials should never be used in a production environment. In a real deployment, user roles would be assigned and managed securely by an administrator.
+
+To create test accounts for all roles, run:
+```bash
+npm run seed
+```
+
+This creates three ready-to-use accounts:
+
+| Role | Email | Password |
+|------|-------|----------|
+| ADMIN | admin@test.com | admin123 |
+| ANALYST | analyst@test.com | analyst123 |
+| VIEWER | viewer@test.com | viewer123 |
 
 ---
 
-## 🧠 Assumptions
+## API Documentation
+
+Interactive API docs available at:
+```
+http://localhost:5000/api-docs
+```
+
+---
+
+## Testing
+
+APIs can be tested via the interactive Swagger docs at `http://localhost:5000/api-docs` or using Postman.
+
+---
+
+## Assumptions
 
 - Authentication is implemented using JWT
 - Role is assigned at user creation (default: `VIEWER`)
@@ -122,7 +168,7 @@ APIs were tested using Postman. A Postman collection is included in the repo (`p
 
 ---
 
-## 🏗️ Design Decisions
+## Design Decisions
 
 - Used middleware for role-based access control to keep authorization logic reusable and decoupled from route handlers
 - Separated controllers and services for maintainability — controllers handle HTTP, services handle business logic
@@ -131,11 +177,11 @@ APIs were tested using Postman. A Postman collection is included in the repo (`p
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
-├── config/         # Database connection
+├── config/         # Database connection + Swagger definition
 ├── controllers/    # Route handlers
 ├── middleware/     # Auth, authorization, validation, logging
 ├── models/         # Mongoose schemas
@@ -146,4 +192,13 @@ src/
 
 ---
 
+## Final Checklist
 
+- [x] Code runs
+- [x] README clear
+- [x] Roles explained
+- [x] APIs listed
+- [x] `.env.example` added
+- [x] Docker support
+- [x] Seed script for test users
+- [x] Swagger API docs at `/api-docs`
