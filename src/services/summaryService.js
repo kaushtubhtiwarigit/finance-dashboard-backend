@@ -1,10 +1,11 @@
 const Record = require('../models/Record');
+const mongoose = require('mongoose');
 
 const buildBaseQuery = (userId, userRole, startDate, endDate) => {
   const query = { isDeleted: false };
 
   if (userRole !== 'ADMIN') {
-    query.createdBy = userId;
+    query.createdBy = new mongoose.Types.ObjectId(userId);
   }
 
   if (startDate || endDate) {

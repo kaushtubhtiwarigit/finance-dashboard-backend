@@ -32,7 +32,7 @@ app.use('/api/records', recordRoutes);
 app.use('/api/summary', summaryRoutes);
 
 // 404 handler
-app.use((req, res) => {
+app.use((_req, res) => {
   res.status(404).json({ error: { message: 'Route not found' } });
 });
 
